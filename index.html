@@ -3,470 +3,983 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-<meta name="theme-color" content="#06120d" />
+<meta name="theme-color" content="#000000" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Authenticator" />
-<title>Authenticator</title>
+<meta name="apple-mobile-web-app-title" content="AUTH" />
+<title>SEC.AUTH // 2FA TERMINAL</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icon.svg" />
 <link rel="apple-touch-icon" href="icon.svg" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --bg: #06120d;
-    --bg-2: #0a1a12;
-    --card: #0d2118;
-    --card-2: #112c1f;
-    --border: rgba(52, 227, 155, 0.12);
-    --border-strong: rgba(52, 227, 155, 0.28);
-    --text: #e6f5ec;
-    --text-dim: #7fa895;
-    --accent: #10d97a;
-    --accent-2: #34e39b;
-    --accent-glow: rgba(16, 217, 122, 0.35);
-    --danger: #ff6b6b;
-    --radius: 20px;
-    --code-font: ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, monospace;
+    --bg: #000000;
+    --bg-soft: #050805;
+    --panel: #0a0f0a;
+    --panel-2: #0d140d;
+    --border: rgba(0, 255, 65, 0.18);
+    --border-strong: rgba(0, 255, 65, 0.55);
+    --green: #00ff41;
+    --green-2: #39ff88;
+    --green-dim: #00b32c;
+    --green-glow: rgba(0, 255, 65, 0.5);
+    --text: #c8ffd4;
+    --text-dim: #4d7a56;
+    --danger: #ff2b4a;
+    --amber: #ffb000;
+    --mono: "JetBrains Mono", "Share Tech Mono", ui-monospace, "SF Mono", Menlo, monospace;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; height: 100%; }
+  html, body { margin: 0; padding: 0; min-height: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    font-family: var(--mono);
     background: var(--bg);
     color: var(--text);
     overflow-x: hidden;
     min-height: 100dvh;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(16, 217, 122, 0.15), transparent 70%),
-      radial-gradient(ellipse 60% 40% at 90% 110%, rgba(52, 227, 155, 0.08), transparent 70%);
-    background-attachment: fixed;
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
-  }
-
-  /* ---------- Header ---------- */
-  header {
-    display: flex; align-items: center; gap: 12px;
-    padding: 20px 20px 12px;
-    position: sticky; top: 0; z-index: 20;
-    background: linear-gradient(180deg, var(--bg) 60%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-  .logo {
-    width: 38px; height: 38px; border-radius: 12px;
-    display: grid; place-items: center;
-    background: linear-gradient(135deg, var(--accent-2), var(--accent));
-    box-shadow: 0 6px 20px -6px var(--accent-glow);
-    flex-shrink: 0;
-  }
-  .logo svg { width: 22px; height: 22px; }
-  header h1 {
-    font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.3px;
-    background: linear-gradient(135deg, #fff, #a8e6c4);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
-  .menu-btn {
-    margin-left: auto; width: 38px; height: 38px; border-radius: 12px;
-    background: var(--card); border: 1px solid var(--border);
-    color: var(--text-dim); cursor: pointer;
-    display: grid; place-items: center; font-size: 20px;
-    transition: all .2s;
-  }
-  .menu-btn:active { transform: scale(0.94); background: var(--card-2); }
-
-  /* ---------- Search ---------- */
-  .search-wrap { padding: 0 20px 12px; }
-  .search-wrap input {
-    width: 100%; padding: 12px 16px 12px 40px;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 14px; color: var(--text);
-    font-size: 14px; outline: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237fa895' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: 14px center;
-    transition: border-color .2s;
-  }
-  .search-wrap input:focus { border-color: var(--border-strong); }
-  .search-wrap input::placeholder { color: var(--text-dim); }
-  .search-wrap.hidden { display: none; }
-
-  /* ---------- List ---------- */
-  main { padding: 4px 16px 120px; max-width: 560px; margin: 0 auto; }
-  .list { display: flex; flex-direction: column; gap: 10px; }
-
-  .card {
     position: relative;
-    background: linear-gradient(135deg, var(--card) 0%, var(--card-2) 100%);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 18px;
-    overflow: hidden;
-    transition: transform .15s, border-color .3s;
-    animation: cardIn .35s cubic-bezier(.2,.9,.3,1.2) backwards;
   }
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(8px) scale(0.98); }
-    to { opacity: 1; transform: none; }
-  }
-  .card::before {
-    content: ""; position: absolute; inset: 0;
-    background: linear-gradient(135deg, var(--accent-glow), transparent 50%);
-    opacity: 0; transition: opacity .4s; pointer-events: none;
-  }
-  .card.warn::before { opacity: 0.35; }
-  .card.warn { border-color: rgba(255, 107, 107, 0.35); }
-  .card:active { transform: scale(0.985); }
 
-  .card-head {
-    display: flex; align-items: baseline; gap: 8px;
-    margin-bottom: 10px; position: relative;
-  }
-  .issuer {
-    font-weight: 650; font-size: 14.5px; letter-spacing: -0.2px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    max-width: 50%;
-  }
-  .label {
-    font-size: 12px; color: var(--text-dim);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    flex: 1;
-  }
-  .del-btn {
-    margin-left: auto; width: 26px; height: 26px; border-radius: 8px;
-    background: transparent; border: none; color: var(--text-dim);
-    font-size: 16px; line-height: 1; cursor: pointer;
-    display: grid; place-items: center; opacity: 0.5;
-    transition: all .2s; flex-shrink: 0;
-  }
-  .del-btn:hover { opacity: 1; color: var(--danger); background: rgba(255,107,107,.1); }
-
-  .code-row {
-    display: flex; align-items: center; gap: 14px;
-  }
-  .code {
-    font-family: var(--code-font);
-    font-size: 30px; font-weight: 600;
-    letter-spacing: 3px;
-    color: var(--accent-2);
-    cursor: pointer;
-    user-select: none;
-    text-shadow: 0 0 24px rgba(52, 227, 155, 0.25);
-    transition: color .2s;
-    flex: 1;
-  }
-  .code:active { color: #fff; }
-  .code.copied { color: #fff; }
-
-  .ring { width: 44px; height: 44px; flex-shrink: 0; }
-  .ring-bg { stroke: rgba(255,255,255,0.06); }
-  .ring-fg {
-    stroke: var(--accent);
-    transition: stroke-dashoffset .25s linear, stroke .3s;
-  }
-  .card.warn .ring-fg { stroke: var(--danger); }
-  .secs {
-    position: absolute; font-size: 11px; font-weight: 700;
-    color: var(--text-dim); font-family: var(--code-font);
+  /* === Matrix rain canvas (background) === */
+  #matrix {
+    position: fixed; inset: 0;
+    z-index: 0;
+    opacity: 0.15;
     pointer-events: none;
   }
-  .ring-wrap { position: relative; width: 44px; height: 44px; display: grid; place-items: center; }
-  .ring-wrap .secs { inset: 0; display: grid; place-items: center; }
 
-  /* ---------- Empty state ---------- */
-  .empty {
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 60px 30px; gap: 14px; color: var(--text-dim);
+  /* === Scanlines overlay === */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 65, 0.025) 0px,
+      rgba(0, 255, 65, 0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 2;
   }
-  .empty.show { display: flex; }
-  .empty svg { width: 72px; height: 72px; opacity: 0.35; }
-  .empty h3 { margin: 4px 0 0; font-size: 16px; color: var(--text); font-weight: 600; }
-  .empty p { margin: 0; font-size: 13.5px; line-height: 1.5; max-width: 280px; }
-
-  /* ---------- FAB ---------- */
-  .fab {
-    position: fixed; right: 20px;
-    bottom: calc(24px + env(safe-area-inset-bottom));
-    width: 60px; height: 60px; border-radius: 20px;
-    background: linear-gradient(135deg, var(--accent-2), var(--accent));
-    border: none; color: #04160e; font-size: 30px; font-weight: 300;
-    cursor: pointer; z-index: 30;
-    box-shadow: 0 12px 32px -8px var(--accent-glow), 0 0 0 1px rgba(52,227,155,.3) inset;
-    display: grid; place-items: center; line-height: 0;
-    transition: transform .15s, box-shadow .3s;
+  /* === Vignette === */
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+    pointer-events: none;
+    z-index: 2;
   }
-  .fab:active { transform: scale(0.9); }
-  .fab:hover { box-shadow: 0 16px 40px -8px var(--accent-glow), 0 0 0 1px rgba(52,227,155,.5) inset; }
 
-  /* ---------- Modal / Sheet ---------- */
+  /* === All content above canvas === */
+  header, main, .modal, .toast, .fab, .install-banner, #boot { position: relative; z-index: 3; }
+  .modal, .toast, .fab, .install-banner, #boot { position: fixed; }
+
+  /* === Header === */
+  header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 16px 14px;
+    position: sticky; top: 0; z-index: 20;
+    background: linear-gradient(180deg, #000 60%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    width: 42px; height: 42px; border-radius: 8px;
+    display: grid; place-items: center; flex-shrink: 0;
+    background: #000;
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 0 16px var(--green-glow), inset 0 0 12px rgba(0,255,65,.15);
+    position: relative;
+  }
+  .logo::before {
+    content: ""; position: absolute; inset: 3px;
+    border: 1px dashed rgba(0,255,65,.35);
+    border-radius: 5px;
+  }
+  .logo svg { width: 22px; height: 22px; position: relative; z-index: 1; filter: drop-shadow(0 0 4px var(--green)); }
+
+  .header-info { flex: 1; min-width: 0; }
+  .header-title {
+    font-size: 15px; font-weight: 800;
+    color: var(--green);
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--green-glow);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .header-title::after {
+    content: "";
+    width: 8px; height: 14px;
+    background: var(--green);
+    animation: blink 1s steps(2) infinite;
+    box-shadow: 0 0 8px var(--green);
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .header-sub {
+    font-size: 9.5px; color: var(--text-dim);
+    letter-spacing: 1.5px; margin-top: 3px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .dot-online {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulseDot 1.4s ease-in-out infinite;
+  }
+  @keyframes pulseDot { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  .menu-btn {
+    width: 42px; height: 42px; border-radius: 8px;
+    background: #000; border: 1px solid var(--border);
+    color: var(--green); cursor: pointer;
+    display: grid; place-items: center;
+    transition: all .2s;
+  }
+  .menu-btn:active { transform: scale(0.94); background: var(--panel); border-color: var(--border-strong); box-shadow: 0 0 12px var(--green-glow); }
+
+  /* === Main === */
+  main { padding: 14px 14px 120px; max-width: 520px; margin: 0 auto; }
+
+  /* === Section header bars === */
+  .bar {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10px; font-weight: 700;
+    color: var(--green);
+    letter-spacing: 2px;
+    padding: 6px 10px;
+    background: linear-gradient(90deg, rgba(0,255,65,.08), transparent);
+    border-left: 2px solid var(--green);
+    margin-bottom: 12px;
+    text-shadow: 0 0 8px var(--green-glow);
+  }
+  .bar .meta { margin-left: auto; color: var(--text-dim); font-weight: 500; }
+
+  /* === Panels === */
+  .panel {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--border);
+    padding: 16px;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .panel::before, .panel::after {
+    content: ""; position: absolute; width: 12px; height: 12px;
+    border-color: var(--green);
+  }
+  .panel::before {
+    top: -1px; left: -1px;
+    border-top: 2px solid var(--green);
+    border-left: 2px solid var(--green);
+  }
+  .panel::after {
+    bottom: -1px; right: -1px;
+    border-bottom: 2px solid var(--green);
+    border-right: 2px solid var(--green);
+  }
+
+  /* === Secret input === */
+  .secret-input {
+    width: 100%;
+    padding: 16px 14px;
+    background: #000;
+    border: 1px solid var(--border);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    outline: none;
+    transition: all .25s;
+    margin-bottom: 12px;
+    text-align: center;
+    text-shadow: 0 0 8px var(--green-glow);
+    caret-color: var(--green);
+  }
+  .secret-input::placeholder {
+    color: #1a3d24;
+    letter-spacing: 2px;
+    text-shadow: none;
+  }
+  .secret-input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 1px var(--green), 0 0 20px rgba(0,255,65,.25), inset 0 0 12px rgba(0,255,65,.08);
+  }
+
+  .btn-row { display: flex; gap: 10px; }
+  .tbtn {
+    flex: 1;
+    padding: 13px 12px;
+    background: #000;
+    border: 1px solid var(--border);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all .18s;
+    text-shadow: 0 0 6px var(--green-glow);
+  }
+  .tbtn svg { width: 15px; height: 15px; }
+  .tbtn:active { transform: scale(0.97); }
+  .tbtn:hover, .tbtn:active {
+    border-color: var(--green);
+    background: rgba(0,255,65,.06);
+    box-shadow: 0 0 16px rgba(0,255,65,.25), inset 0 0 12px rgba(0,255,65,.08);
+  }
+  .tbtn.primary {
+    background: var(--green);
+    color: #000;
+    border-color: var(--green);
+    text-shadow: none;
+    box-shadow: 0 0 20px var(--green-glow);
+  }
+  .tbtn.danger { color: var(--danger); border-color: rgba(255,43,74,.4); text-shadow: 0 0 6px rgba(255,43,74,.6); }
+  .tbtn.danger:hover, .tbtn.danger:active { background: rgba(255,43,74,.08); border-color: var(--danger); box-shadow: 0 0 16px rgba(255,43,74,.3); }
+
+  /* === Active token panel === */
+  .token-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .token-head .bar { margin: 0; flex: 1; }
+  .timer-pill {
+    padding: 4px 12px;
+    background: #000;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 11.5px; font-weight: 700;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px var(--green-glow), inset 0 0 8px rgba(0,255,65,.1);
+    text-shadow: 0 0 6px var(--green-glow);
+  }
+  .timer-pill.warn {
+    color: var(--danger); border-color: var(--danger);
+    box-shadow: 0 0 10px rgba(255,43,74,.5), inset 0 0 8px rgba(255,43,74,.15);
+    text-shadow: 0 0 6px rgba(255,43,74,.7);
+    animation: warnBlink .5s steps(2) infinite;
+  }
+  @keyframes warnBlink { 50% { opacity: .5; } }
+
+  /* === Segmented progress bar === */
+  .segments {
+    display: flex; gap: 2px;
+    height: 20px;
+    margin-bottom: 8px;
+    padding: 2px;
+    background: #000;
+    border: 1px solid var(--border);
+  }
+  .seg {
+    flex: 1;
+    background: transparent;
+    border-right: 1px solid rgba(0,255,65,.06);
+    transition: background .15s;
+  }
+  .seg:last-child { border-right: none; }
+  .seg.on {
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green-glow), inset 0 0 4px rgba(255,255,255,.4);
+  }
+  .seg.on.warn {
+    background: var(--danger);
+    box-shadow: 0 0 8px rgba(255,43,74,.7);
+  }
+  .seg-labels {
+    display: flex; justify-content: space-between;
+    font-size: 9px; font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 1.2px;
+    margin-bottom: 16px;
+  }
+  .seg-labels .warn { color: var(--danger); text-shadow: 0 0 6px rgba(255,43,74,.6); }
+
+  /* === Code display === */
+  .code-box {
+    background: #000;
+    border: 1px solid var(--border-strong);
+    padding: 24px 16px 20px;
+    text-align: center;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 40px rgba(0,255,65,.06);
+  }
+  .code-box::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent 0, transparent 2px,
+      rgba(0,255,65,.03) 2px, rgba(0,255,65,.03) 3px
+    );
+    pointer-events: none;
+  }
+  .code {
+    font-family: var(--mono);
+    font-size: 42px; font-weight: 800;
+    letter-spacing: 8px;
+    color: var(--green);
+    cursor: pointer;
+    user-select: none;
+    position: relative; z-index: 1;
+    text-shadow:
+      0 0 10px var(--green),
+      0 0 24px var(--green-glow),
+      0 0 44px rgba(0,255,65,.35);
+    transition: filter .15s;
+    padding-left: 8px;
+  }
+  .code:active { filter: brightness(1.5); }
+  .code.copied {
+    color: #fff;
+    text-shadow: 0 0 12px #fff, 0 0 24px var(--green), 0 0 48px var(--green);
+  }
+  .code.empty {
+    color: #1a3d24 !important;
+    text-shadow: none !important;
+  }
+
+  /* === Big copy button === */
+  .copy-btn {
+    width: 100%;
+    padding: 15px;
+    background: #000;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all .18s;
+    text-shadow: 0 0 8px var(--green-glow);
+    box-shadow: 0 0 16px rgba(0,255,65,.2), inset 0 0 12px rgba(0,255,65,.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .copy-btn::before {
+    content: "";
+    position: absolute; left: -100%; top: 0; bottom: 0;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0,255,65,.25), transparent);
+    transition: left .5s;
+  }
+  .copy-btn:hover::before, .copy-btn:active::before { left: 100%; }
+  .copy-btn:active { transform: scale(0.98); background: rgba(0,255,65,.08); }
+  .copy-btn:disabled {
+    opacity: 0.35; cursor: not-allowed;
+    box-shadow: none;
+  }
+  .copy-btn svg { width: 18px; height: 18px; }
+
+  /* === Account list === */
+  .section-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 10px; font-weight: 700;
+    color: var(--green);
+    letter-spacing: 2.5px;
+    margin: 22px 4px 12px;
+    text-shadow: 0 0 8px var(--green-glow);
+  }
+  .section-title::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--green), transparent);
+    opacity: 0.5;
+  }
+  .section-title::before { content: "▶"; font-size: 8px; }
+
+  .account-item {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    transition: all .18s;
+    position: relative;
+  }
+  .account-item::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 2px; background: transparent;
+    transition: background .2s;
+  }
+  .account-item:active { transform: scale(0.99); }
+  .account-item.active {
+    border-color: var(--green);
+    box-shadow: 0 0 16px rgba(0,255,65,.2), inset 0 0 20px rgba(0,255,65,.04);
+  }
+  .account-item.active::before { background: var(--green); box-shadow: 0 0 10px var(--green); }
+
+  .acc-avatar {
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    background: #000;
+    border: 1px solid var(--border-strong);
+    color: var(--green);
+    font-family: var(--mono);
+    font-weight: 800; font-size: 15px;
+    flex-shrink: 0;
+    text-shadow: 0 0 8px var(--green-glow);
+  }
+  .acc-info { flex: 1; min-width: 0; }
+  .acc-name {
+    font-size: 13px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 3px;
+  }
+  .acc-sub {
+    font-size: 10px; color: var(--text-dim);
+    letter-spacing: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .acc-code {
+    font-family: var(--mono);
+    font-size: 16px; font-weight: 700;
+    color: var(--green);
+    letter-spacing: 2px;
+    flex-shrink: 0;
+    text-shadow: 0 0 8px var(--green-glow);
+  }
+  .acc-del {
+    width: 26px; height: 26px;
+    background: transparent; border: none;
+    color: var(--text-dim);
+    font-family: var(--mono); font-size: 14px;
+    cursor: pointer; display: grid; place-items: center;
+    opacity: 0.5; transition: all .2s;
+    flex-shrink: 0;
+  }
+  .acc-del:hover, .acc-del:active {
+    opacity: 1; color: var(--danger);
+    text-shadow: 0 0 8px rgba(255,43,74,.7);
+  }
+
+  /* === Empty state === */
+  .empty-compact {
+    text-align: center;
+    padding: 24px 16px;
+    color: var(--text-dim);
+    font-size: 11.5px;
+    line-height: 1.9;
+    letter-spacing: 1px;
+  }
+  .empty-compact svg {
+    width: 44px; height: 44px;
+    stroke: var(--green-dim);
+    filter: drop-shadow(0 0 6px rgba(0,255,65,.4));
+    margin-bottom: 12px;
+  }
+  .empty-compact b { color: var(--green); text-shadow: 0 0 6px var(--green-glow); }
+
+  /* === Modal === */
   .modal {
     position: fixed; inset: 0; z-index: 100;
-    background: rgba(2, 10, 6, 0.7);
+    background: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     display: none; align-items: flex-end; justify-content: center;
     opacity: 0; transition: opacity .25s;
   }
   .modal.show { display: flex; opacity: 1; }
   .sheet {
-    width: 100%; max-width: 560px;
-    background: linear-gradient(180deg, var(--card-2), var(--card));
-    border-top-left-radius: 28px; border-top-right-radius: 28px;
-    border: 1px solid var(--border); border-bottom: none;
-    padding: 24px 22px calc(28px + env(safe-area-inset-bottom));
+    width: 100%; max-width: 520px;
+    background: linear-gradient(180deg, #0a0f0a, #050805);
+    border-top: 1px solid var(--green);
+    padding: 22px 20px calc(28px + env(safe-area-inset-bottom));
     transform: translateY(100%);
     transition: transform .35s cubic-bezier(.2,.9,.3,1);
     max-height: 92dvh; overflow-y: auto;
+    position: relative;
+    box-shadow: 0 -20px 60px rgba(0,255,65,.12);
   }
   .modal.show .sheet { transform: translateY(0); }
+  .sheet::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+    box-shadow: 0 0 12px var(--green);
+  }
   .sheet h2 {
-    margin: 0 0 20px; font-size: 18px; font-weight: 700;
-    letter-spacing: -0.3px;
+    margin: 0 0 6px; font-size: 15px; font-weight: 800;
+    color: var(--green);
+    letter-spacing: 2.5px;
+    text-shadow: 0 0 10px var(--green-glow);
+  }
+  .sheet h2::before { content: "> "; color: var(--green-dim); }
+  .sheet h2::after {
+    content: "_";
+    animation: blink 1s steps(2) infinite;
+    color: var(--green);
+  }
+  .sheet .sub {
+    font-size: 10px; color: var(--text-dim);
+    letter-spacing: 1.5px; margin-bottom: 20px;
   }
   .sheet .grab {
-    width: 40px; height: 4px; border-radius: 4px;
-    background: var(--border-strong); margin: -12px auto 16px;
+    width: 44px; height: 2px;
+    background: var(--green);
+    margin: -10px auto 18px;
+    box-shadow: 0 0 8px var(--green);
   }
 
-  .btn {
-    width: 100%; padding: 14px 16px;
-    border-radius: 14px; border: 1px solid var(--border);
-    background: var(--card); color: var(--text);
-    font-size: 14.5px; font-weight: 600; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    transition: all .18s; font-family: inherit;
+  .field { margin-bottom: 14px; }
+  .field label {
+    display: block; font-size: 10px; font-weight: 700;
+    color: var(--green-dim);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
   }
-  .btn:active { transform: scale(0.98); }
-  .btn.primary {
-    background: linear-gradient(135deg, var(--accent-2), var(--accent));
-    color: #04160e; border: none;
-    box-shadow: 0 10px 24px -8px var(--accent-glow);
+  .field label::before { content: "$ "; color: var(--green); }
+  .field input {
+    width: 100%; padding: 13px 14px;
+    background: #000;
+    border: 1px solid var(--border);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 14px;
+    letter-spacing: 1px;
+    outline: none;
+    caret-color: var(--green);
+    transition: border-color .2s;
+    text-shadow: 0 0 6px var(--green-glow);
   }
-  .btn.danger { color: var(--danger); border-color: rgba(255,107,107,.3); }
-  .btn svg { width: 18px; height: 18px; }
+  .field input:focus { border-color: var(--green); box-shadow: 0 0 16px rgba(0,255,65,.2); }
+  .field input::placeholder { color: #1a3d24; text-shadow: none; }
+
+  .btn-primary {
+    width: 100%; padding: 14px;
+    background: var(--green);
+    border: 1px solid var(--green);
+    color: #000;
+    font-family: var(--mono);
+    font-size: 13px; font-weight: 800;
+    letter-spacing: 2px; cursor: pointer;
+    box-shadow: 0 0 24px var(--green-glow);
+    transition: all .18s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary svg { width: 16px; height: 16px; }
+
+  .btn-secondary {
+    width: 100%; padding: 14px;
+    background: #000;
+    border: 1px solid var(--border);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 2px; cursor: pointer;
+    transition: all .18s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 10px;
+    text-shadow: 0 0 6px var(--green-glow);
+  }
+  .btn-secondary:active { transform: scale(0.98); }
+  .btn-secondary:hover, .btn-secondary:active {
+    border-color: var(--green);
+    background: rgba(0,255,65,.05);
+  }
+  .btn-secondary.danger {
+    color: var(--danger); border-color: rgba(255,43,74,.35);
+    text-shadow: 0 0 6px rgba(255,43,74,.6);
+  }
+  .btn-secondary.danger:hover, .btn-secondary.danger:active {
+    background: rgba(255,43,74,.06); border-color: var(--danger);
+  }
+  .btn-secondary svg { width: 16px; height: 16px; }
+
+  .btn-ghost {
+    width: 100%; padding: 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-family: var(--mono); font-size: 11px;
+    font-weight: 700; letter-spacing: 2px;
+    cursor: pointer; margin-top: 8px;
+  }
 
   .divider {
     display: flex; align-items: center; gap: 12px;
-    margin: 18px 0; color: var(--text-dim); font-size: 12px;
+    margin: 18px 0; color: var(--text-dim);
+    font-size: 9.5px; letter-spacing: 2px; font-weight: 700;
   }
   .divider::before, .divider::after {
-    content: ""; flex: 1; height: 1px; background: var(--border);
+    content: ""; flex: 1; height: 1px;
+    background: var(--border);
   }
 
-  .field { margin-bottom: 12px; }
-  .field label {
-    display: block; font-size: 12px; font-weight: 600;
-    color: var(--text-dim); margin-bottom: 6px;
-    text-transform: uppercase; letter-spacing: 0.6px;
-  }
-  .field input {
-    width: 100%; padding: 13px 14px;
-    background: var(--bg-2); border: 1px solid var(--border);
-    border-radius: 12px; color: var(--text);
-    font-size: 14.5px; outline: none;
-    font-family: inherit;
-    transition: border-color .2s;
-  }
-  .field input:focus { border-color: var(--border-strong); }
-  .field input::placeholder { color: #4a6656; }
+  /* === Scanner === */
+  #reader { width: 100%; background: #000; border: 1px solid var(--border-strong); padding: 4px; }
+  #reader video { display: block; }
 
-  /* ---------- Scanner ---------- */
-  #reader { width: 100%; border-radius: 18px; overflow: hidden; background: #000; }
-  #reader video { border-radius: 18px; }
-
-  /* ---------- Toast ---------- */
+  /* === Toast === */
   .toast {
-    position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom));
+    position: fixed; left: 50%; bottom: calc(30px + env(safe-area-inset-bottom));
     transform: translateX(-50%) translateY(20px);
-    background: rgba(15, 40, 28, 0.95);
-    border: 1px solid var(--border-strong);
-    color: var(--text); padding: 11px 20px;
-    border-radius: 999px; font-size: 13.5px; font-weight: 500;
-    z-index: 300; opacity: 0; pointer-events: none;
+    background: #000;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: var(--mono);
+    padding: 11px 20px;
+    font-size: 11.5px; font-weight: 700;
+    letter-spacing: 1.5px;
+    z-index: 300;
+    opacity: 0; pointer-events: none;
     transition: all .3s cubic-bezier(.2,.9,.3,1.2);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 12px 30px -10px rgba(0,0,0,.6);
+    box-shadow: 0 0 24px rgba(0,255,65,.4), inset 0 0 12px rgba(0,255,65,.08);
     white-space: nowrap;
+    text-shadow: 0 0 6px var(--green-glow);
   }
+  .toast::before { content: "[ "; color: var(--green-dim); }
+  .toast::after { content: " ]"; color: var(--green-dim); }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* ---------- Install banner ---------- */
+  /* === Install banner === */
   .install-banner {
-    position: fixed; left: 16px; right: 16px;
-    bottom: calc(96px + env(safe-area-inset-bottom));
-    max-width: 528px; margin: 0 auto;
-    background: linear-gradient(135deg, var(--card-2), var(--card));
-    border: 1px solid var(--border-strong);
-    border-radius: 18px; padding: 14px 16px;
-    display: none; align-items: center; gap: 12px;
-    z-index: 40; box-shadow: 0 20px 40px -12px rgba(0,0,0,.6);
-    animation: cardIn .4s cubic-bezier(.2,.9,.3,1.2);
+    position: fixed; left: 14px; right: 14px;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    max-width: 492px; margin: 0 auto;
+    background: #000;
+    border: 1px solid var(--green);
+    padding: 12px 14px;
+    display: none; align-items: center; gap: 10px;
+    z-index: 40;
+    box-shadow: 0 0 30px rgba(0,255,65,.35), inset 0 0 12px rgba(0,255,65,.05);
   }
-  .install-banner.show { display: flex; }
-  .install-banner p { margin: 0; font-size: 13px; line-height: 1.4; flex: 1; color: var(--text-dim); }
-  .install-banner p b { color: var(--text); display: block; font-size: 13.5px; margin-bottom: 2px; }
+  .install-banner.show { display: flex; animation: slideUp .4s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .install-banner p {
+    margin: 0; font-size: 10.5px;
+    letter-spacing: 1px; line-height: 1.5;
+    flex: 1; color: var(--text-dim);
+  }
+  .install-banner p b {
+    color: var(--green); display: block;
+    font-size: 11.5px; margin-bottom: 3px;
+    letter-spacing: 1.8px;
+    text-shadow: 0 0 6px var(--green-glow);
+  }
   .install-banner button {
-    background: var(--accent); color: #04160e; border: none;
-    padding: 9px 14px; border-radius: 10px; font-weight: 700;
-    font-size: 12.5px; cursor: pointer; flex-shrink: 0; font-family: inherit;
+    background: var(--green); color: #000; border: none;
+    padding: 8px 14px;
+    font-family: var(--mono);
+    font-weight: 800; font-size: 10.5px;
+    letter-spacing: 1.5px; cursor: pointer;
+    flex-shrink: 0;
   }
   .install-banner .close {
-    background: transparent; color: var(--text-dim); padding: 6px;
-    font-size: 18px; line-height: 1; width: 28px; height: 28px;
+    background: transparent; color: var(--green-dim);
+    padding: 4px; font-size: 18px; line-height: 1;
+    width: 26px; height: 26px; font-family: var(--mono);
   }
 
-  /* ---------- Loader overlay on first paint ---------- */
+  /* === Boot === */
   #boot {
-    position: fixed; inset: 0; background: var(--bg);
-    display: grid; place-items: center; z-index: 999;
+    position: fixed; inset: 0;
+    background: #000;
+    display: grid; place-items: center;
+    z-index: 999;
     transition: opacity .4s;
+    font-family: var(--mono);
   }
   #boot.hide { opacity: 0; pointer-events: none; }
-  .spinner {
-    width: 34px; height: 34px; border-radius: 50%;
-    border: 3px solid rgba(52,227,155,.15);
-    border-top-color: var(--accent);
-    animation: spin 0.8s linear infinite;
+  .boot-content {
+    text-align: center;
+    color: var(--green);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px var(--green-glow);
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .boot-content .big {
+    font-size: 22px; font-weight: 800;
+    margin-bottom: 16px;
+    letter-spacing: 4px;
+    animation: bootPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes bootPulse {
+    0%,100% { text-shadow: 0 0 8px var(--green-glow); }
+    50% { text-shadow: 0 0 24px var(--green), 0 0 40px var(--green-glow); }
+  }
+  .boot-bar {
+    width: 200px; height: 3px;
+    background: rgba(0,255,65,.1);
+    margin: 14px auto 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  .boot-bar::after {
+    content: ""; position: absolute;
+    left: -50%; top: 0; bottom: 0; width: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: bootLoad 1.4s ease-in-out infinite;
+  }
+  @keyframes bootLoad {
+    0% { left: -50%; }
+    100% { left: 100%; }
+  }
+
+  /* === FAB === */
+  .fab {
+    position: fixed; right: 16px;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    width: 54px; height: 54px;
+    background: #000;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 26px; font-weight: 300;
+    cursor: pointer; z-index: 30;
+    display: grid; place-items: center; line-height: 0;
+    box-shadow: 0 0 24px rgba(0,255,65,.4), inset 0 0 16px rgba(0,255,65,.08);
+    transition: transform .15s, box-shadow .3s;
+    text-shadow: 0 0 8px var(--green-glow);
+  }
+  .fab:active {
+    transform: scale(0.9);
+    box-shadow: 0 0 32px var(--green), inset 0 0 20px rgba(0,255,65,.15);
+  }
 </style>
 </head>
 <body>
 
-<div id="boot"><div class="spinner"></div></div>
+<canvas id="matrix"></canvas>
 
-<!-- shared svg defs -->
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <linearGradient id="gradAccent" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#34e39b"/>
-      <stop offset="1" stop-color="#10d97a"/>
-    </linearGradient>
-  </defs>
-</svg>
+<div id="boot">
+  <div class="boot-content">
+    <div class="big">SEC.AUTH</div>
+    <div>INITIALIZING SECURE CHANNEL…</div>
+    <div class="boot-bar"></div>
+    <div style="font-size:9px;opacity:.6">AES-256 / TOTP / RFC-6238</div>
+  </div>
+</div>
 
 <header>
   <div class="logo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#04160e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2 4 5v7c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V5z"/>
-      <circle cx="12" cy="11" r="1.6" fill="#04160e" stroke="none"/>
-      <path d="M12 13v3.2"/>
+      <circle cx="12" cy="11" r="1.6" fill="currentColor" stroke="none"/>
+      <path d="M12 13v3"/>
     </svg>
   </div>
-  <h1>Authenticator</h1>
-  <button class="menu-btn" id="menuBtn" aria-label="Menu">⋯</button>
+  <div class="header-info">
+    <div class="header-title">SEC.AUTH</div>
+    <div class="header-sub">
+      <span class="dot-online"></span>
+      <span id="statusText">SYSTEM ONLINE // TOTP READY</span>
+    </div>
+  </div>
+  <button class="menu-btn" id="menuBtn" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:20px;height:20px">
+      <circle cx="12" cy="12" r="1" fill="currentColor"/>
+      <circle cx="12" cy="5" r="1" fill="currentColor"/>
+      <circle cx="12" cy="19" r="1" fill="currentColor"/>
+    </svg>
+  </button>
 </header>
 
-<div class="search-wrap hidden" id="searchWrap">
-  <input type="text" id="search" placeholder="Search accounts…" autocomplete="off" />
-</div>
-
 <main>
-  <div class="list" id="list"></div>
 
-  <div class="empty" id="empty">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#34e39b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Secret input -->
+  <div class="panel">
+    <div class="bar">KEY INPUT <span class="meta">BASE32</span></div>
+    <input type="text" class="secret-input" id="secretInput"
+      placeholder="XXXX XXXX XXXX XXXX"
+      autocomplete="off" autocapitalize="characters" spellcheck="false" />
+    <div class="btn-row">
+      <button class="tbtn" id="pasteBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="2" width="8" height="4" rx="1"/>
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+        </svg>
+        PASTE
+      </button>
+      <button class="tbtn" id="scanBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>
+          <rect x="8" y="8" width="8" height="8" rx="1"/>
+        </svg>
+        SCAN QR
+      </button>
+    </div>
+  </div>
+
+  <!-- Active token -->
+  <div class="panel">
+    <div class="token-head">
+      <div class="bar">ACTIVE TOKEN</div>
+      <div class="timer-pill" id="timerPill">30s</div>
+    </div>
+
+    <div class="segments" id="segments"></div>
+    <div class="seg-labels">
+      <span>SYS.BUFFER.01</span>
+      <span id="syncStatus">SYNC_OK</span>
+      <span id="hexVal">0x1E</span>
+    </div>
+
+    <div class="code-box">
+      <div class="code empty" id="codeDisplay">--- ---</div>
+    </div>
+
+    <button class="copy-btn" id="copyBtn" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="12" height="12" rx="2"/>
+        <path d="M5 15V5a2 2 0 0 1 2-2h10"/>
+      </svg>
+      COPY CODE
+    </button>
+  </div>
+
+  <!-- Saved accounts -->
+  <div id="savedSection" style="display:none">
+    <div class="section-title">SAVED TARGETS</div>
+    <div id="list"></div>
+  </div>
+
+  <div class="empty-compact" id="emptyHint">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="7" height="7" rx="1.5"/>
       <rect x="14" y="3" width="7" height="7" rx="1.5"/>
       <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-      <path d="M14 14h3v3h-3zM20 14v3M17 20h3M14 20h.01"/>
+      <path d="M14 14h3v3h-3zM20 14v3M17 20h3"/>
     </svg>
-    <h3>No accounts yet</h3>
-    <p>Tap the <b style="color:var(--accent-2)">+</b> button below to scan a QR code or enter a secret key manually.</p>
+    <div>NO TARGETS LOADED</div>
+    <div>PASTE A KEY OR <b>SCAN QR</b> TO BEGIN</div>
   </div>
+
 </main>
 
-<button class="fab" id="fab" aria-label="Add account">+</button>
+<button class="fab" id="fab" aria-label="Add" style="display:none">+</button>
 
 <!-- Add sheet -->
 <div class="modal" id="addModal">
   <div class="sheet">
     <div class="grab"></div>
-    <h2>Add account</h2>
-
-    <button class="btn primary" id="scanBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/>
-        <rect x="8" y="8" width="8" height="8" rx="1"/>
+    <h2>SAVE TARGET</h2>
+    <div class="sub">// ENTER IDENTIFIER FOR THIS SECRET</div>
+    <div class="field">
+      <label>account name</label>
+      <input type="text" id="mName" placeholder="github — user@mail.com" autocomplete="off" />
+    </div>
+    <button class="btn-primary" id="saveManual">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 13l4 4L19 7"/>
       </svg>
-      Scan QR code
+      SAVE
     </button>
-
-    <div class="divider">or enter manually</div>
-
-    <div class="field">
-      <label>Account name</label>
-      <input type="text" id="mName" placeholder="e.g. GitHub — you@email.com" autocomplete="off" />
-    </div>
-    <div class="field">
-      <label>Secret key (Base32)</label>
-      <input type="text" id="mSecret" placeholder="JBSWY3DPEHPK3PXP" autocomplete="off" autocapitalize="characters" />
-    </div>
-
-    <button class="btn primary" id="saveManual" style="margin-top:6px">Add account</button>
-    <button class="btn" id="cancelAdd" style="margin-top:10px; border:none; background:transparent; color:var(--text-dim)">Cancel</button>
+    <button class="btn-ghost" id="cancelAdd">// CANCEL</button>
   </div>
 </div>
 
-<!-- Scanner sheet -->
+<!-- Scanner -->
 <div class="modal" id="scanModal">
   <div class="sheet">
     <div class="grab"></div>
-    <h2>Scan QR code</h2>
+    <h2>QR SCAN</h2>
+    <div class="sub">// POINT CAMERA AT TARGET QR</div>
     <div id="reader"></div>
-    <button class="btn" id="cancelScan" style="margin-top:16px">Cancel</button>
+    <button class="btn-ghost" id="cancelScan">// CANCEL</button>
   </div>
 </div>
 
-<!-- Menu sheet -->
+<!-- Menu -->
 <div class="modal" id="menuModal">
   <div class="sheet">
     <div class="grab"></div>
-    <h2>Options</h2>
-    <button class="btn" id="exportBtn" style="margin-bottom:10px">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-      Export backup (.json)
+    <h2>SYSTEM MENU</h2>
+    <div class="sub">// SECURE OPERATIONS</div>
+    <button class="btn-primary" id="exportBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      EXPORT BACKUP
     </button>
-    <button class="btn" id="importBtn" style="margin-bottom:10px">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0-4 4m4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-      Import backup
+    <button class="btn-secondary" id="importBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0-4 4m4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+      IMPORT BACKUP
     </button>
     <input type="file" id="importFile" accept="application/json" hidden />
-    <button class="btn danger" id="clearBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>
-      Delete all accounts
+    <button class="btn-secondary danger" id="clearBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg>
+      WIPE ALL DATA
     </button>
-    <button class="btn" id="cancelMenu" style="margin-top:10px; border:none; background:transparent; color:var(--text-dim)">Close</button>
+    <button class="btn-ghost" id="cancelMenu">// CLOSE</button>
   </div>
 </div>
 
-<!-- Install banner -->
 <div class="install-banner" id="installBanner">
   <div>
-    <p><b>Install as app</b>Add to your home screen for quick access.</p>
+    <p><b>INSTALL MODULE</b>ADD TO HOME SCREEN</p>
   </div>
-  <button id="installBtn">Install</button>
+  <button id="installBtn">INSTALL</button>
   <button class="close" id="installClose">×</button>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/otpauth@9.3.1/dist/otpauth.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 <script>
 /* =========================================================
-   Authenticator — TOTP 2FA PWA
+   SEC.AUTH — TOTP Terminal
    ========================================================= */
-
 const $ = s => document.querySelector(s);
-const STORAGE_KEY = 'auth.accounts.v1';
+const STORAGE_KEY = 'secauth.accounts.v1';
+const STORAGE_ACTIVE = 'secauth.active.v1';
 
 let accounts = [];
+let activeId = null;
+let pendingSecret = null;
+let pendingMeta = null;
 let deferredInstall = null;
 let scanner = null;
 let tickTimer = null;
+const SEG_COUNT = 30;
+
+/* ---------- Matrix rain ---------- */
+function initMatrix() {
+  const canvas = $('#matrix');
+  const ctx = canvas.getContext('2d');
+  let w, h, cols, drops;
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%"\'#&_(),.;:?!\\|{}<>[]^~';
+  const fontSize = 12;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    cols = Math.floor(w / fontSize);
+    drops = new Array(cols).fill(1);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = fontSize + 'px "JetBrains Mono", monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const text = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+      if (drops[i] * fontSize > h && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  setInterval(draw, 55);
+}
 
 /* ---------- Storage ---------- */
 function load() {
@@ -474,40 +987,33 @@ function load() {
     const raw = localStorage.getItem(STORAGE_KEY);
     accounts = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(accounts)) accounts = [];
-  } catch { accounts = []; }
+    activeId = localStorage.getItem(STORAGE_ACTIVE) || null;
+  } catch { accounts = []; activeId = null; }
 }
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+  if (activeId) localStorage.setItem(STORAGE_ACTIVE, activeId);
+  else localStorage.removeItem(STORAGE_ACTIVE);
 }
 
 /* ---------- Utils ---------- */
 function uid() {
-  if (crypto.randomUUID) return crypto.randomUUID();
-  return 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  return crypto.randomUUID ? crypto.randomUUID()
+    : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
-
-function normalizeSecret(s) {
-  return (s || '').replace(/[\s-]/g, '').toUpperCase();
+function normalizeSecret(s) { return (s || '').replace(/[\s\-—_]/g, '').toUpperCase(); }
+function isValidBase32(s) { return /^[A-Z2-7]+=*$/.test(s) && s.replace(/=/g,'').length >= 8; }
+function formatCode(c) {
+  const n = c.length;
+  if (n === 6) return c.slice(0, 3) + ' ' + c.slice(3);
+  if (n === 8) return c.slice(0, 4) + ' ' + c.slice(4);
+  return c;
 }
-
-function isValidBase32(s) {
-  return /^[A-Z2-7]+=*$/.test(s) && s.length >= 8;
-}
-
-function formatCode(code) {
-  const n = code.length;
-  if (n === 6) return code.slice(0, 3) + ' ' + code.slice(3);
-  if (n === 8) return code.slice(0, 4) + ' ' + code.slice(4);
-  if (n === 7) return code.slice(0, 4) + ' ' + code.slice(4);
-  return code;
-}
-
 function escapeHTML(str) {
-  return (str || '').replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
+  return (str || '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
 }
-
 function toast(msg, ms = 1800) {
   const t = $('#toast');
   t.textContent = msg;
@@ -527,75 +1033,156 @@ function makeTOTP(acc) {
     secret: OTPAuth.Secret.fromBase32(acc.secret)
   });
 }
+function genCode(acc, ts = Date.now()) {
+  try { return makeTOTP(acc).generate({ timestamp: ts }); }
+  catch { return null; }
+}
 
-function generateCode(acc, timestamp = Date.now()) {
-  try {
-    return makeTOTP(acc).generate({ timestamp });
-  } catch (e) {
-    return null;
+/* ---------- Segments ---------- */
+function buildSegments() {
+  const wrap = $('#segments');
+  wrap.innerHTML = '';
+  for (let i = 0; i < SEG_COUNT; i++) {
+    const d = document.createElement('div');
+    d.className = 'seg';
+    wrap.appendChild(d);
   }
 }
 
-/* ---------- Render ---------- */
-function render() {
-  const wrap = $('#searchWrap');
-  const q = $('#search').value.trim().toLowerCase();
+/* ---------- Code display ---------- */
+function updateCodeDisplay(acc, remaining, period) {
+  const el = $('#codeDisplay');
+  if (!acc) {
+    el.textContent = '--- ---';
+    el.classList.add('empty');
+    $('#copyBtn').disabled = true;
+    return;
+  }
+  const epoch = Math.floor(Date.now() / 1000);
+  const step = Math.floor(epoch / period);
+  if (el.dataset.step !== String(step) || el.classList.contains('empty')) {
+    el.dataset.step = String(step);
+    const code = genCode(acc);
+    if (code) {
+      el.textContent = formatCode(code);
+      el.classList.remove('empty');
+      el.dataset.raw = code;
+      $('#copyBtn').disabled = false;
+    } else {
+      el.textContent = 'ERR';
+      el.classList.add('empty');
+      $('#copyBtn').disabled = true;
+    }
+  }
+}
 
-  if (accounts.length > 2) wrap.classList.remove('hidden');
-  else { wrap.classList.add('hidden'); $('#search').value = ''; }
+/* ---------- Tick ---------- */
+function tick() {
+  const now = Date.now();
+  const epoch = Math.floor(now / 1000);
+  const acc = activeId ? accounts.find(a => a.id === activeId) : null;
+  const period = acc ? (acc.period || 30) : 30;
+  const remaining = period - (epoch % period);
 
-  const filtered = accounts.filter(a =>
-    !q ||
-    (a.issuer || '').toLowerCase().includes(q) ||
-    (a.label || '').toLowerCase().includes(q)
-  );
+  // segments
+  const filled = Math.round(SEG_COUNT * (remaining / period));
+  const warn = remaining <= 5;
+  const segs = $('#segments').children;
+  for (let i = 0; i < segs.length; i++) {
+    segs[i].classList.toggle('on', i < filled);
+    segs[i].classList.toggle('warn', warn && i < filled);
+  }
 
+  // timer
+  const pill = $('#timerPill');
+  pill.textContent = remaining + 's';
+  pill.classList.toggle('warn', warn);
+
+  // metadata
+  $('#hexVal').textContent = '0x' + remaining.toString(16).toUpperCase().padStart(2, '0');
+  const syncEl = $('#syncStatus');
+  syncEl.textContent = warn ? 'SYNC_LOW' : 'SYNC_OK';
+  syncEl.classList.toggle('warn', warn);
+
+  // status header
+  const st = $('#statusText');
+  if (st) {
+    st.textContent = warn
+      ? 'ROTATION IMMINENT // ' + remaining + 's'
+      : 'SYSTEM ONLINE // TOTP READY';
+  }
+
+  // code
+  updateCodeDisplay(acc, remaining, period);
+
+  // update list codes
+  document.querySelectorAll('.account-item').forEach(item => {
+    const a = accounts.find(x => x.id === item.dataset.id);
+    if (!a) return;
+    const el = item.querySelector('.acc-code');
+    const p = a.period || 30;
+    const s = Math.floor(epoch / p);
+    if (el.dataset.step !== String(s)) {
+      el.dataset.step = String(s);
+      const c = genCode(a);
+      el.textContent = c ? formatCode(c) : 'ERR';
+    }
+  });
+}
+
+/* ---------- Render list ---------- */
+function renderList() {
   const listEl = $('#list');
-  const emptyEl = $('#empty');
+  const section = $('#savedSection');
+  const hint = $('#emptyHint');
+  const fab = $('#fab');
 
   if (!accounts.length) {
+    section.style.display = 'none';
+    hint.style.display = 'block';
+    fab.style.display = 'none';
     listEl.innerHTML = '';
-    emptyEl.classList.add('show');
     return;
   }
-  emptyEl.classList.remove('show');
+  section.style.display = 'block';
+  hint.style.display = 'none';
+  fab.style.display = 'grid';
 
-  if (!filtered.length) {
-    listEl.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--text-dim);font-size:14px">No matches</div>`;
-    return;
-  }
+  listEl.innerHTML = accounts.map(a => {
+    const initial = (a.issuer || a.label || '?').trim().charAt(0).toUpperCase();
+    const sub = a.label || (a.issuer ? '' : 'account');
+    return `
+      <div class="account-item ${a.id === activeId ? 'active' : ''}" data-id="${a.id}">
+        <div class="acc-avatar">${escapeHTML(initial)}</div>
+        <div class="acc-info">
+          <div class="acc-name">${escapeHTML(a.issuer || 'ACCOUNT')}</div>
+          ${sub ? `<div class="acc-sub">${escapeHTML(sub.toUpperCase())}</div>` : ''}
+        </div>
+        <div class="acc-code">------</div>
+        <button class="acc-del" aria-label="Delete">✕</button>
+      </div>
+    `;
+  }).join('');
 
-  listEl.innerHTML = filtered.map((a, i) => cardHTML(a, i)).join('');
-
-  // attach handlers
-  listEl.querySelectorAll('.card').forEach(card => {
-    const id = card.dataset.id;
+  listEl.querySelectorAll('.account-item').forEach(item => {
+    const id = item.dataset.id;
     const acc = accounts.find(x => x.id === id);
     if (!acc) return;
 
-    card.querySelector('.code').addEventListener('click', async () => {
-      const code = card.querySelector('.code').textContent.replace(/\s/g, '');
-      try {
-        await navigator.clipboard.writeText(code);
-      } catch {
-        const ta = document.createElement('textarea');
-        ta.value = code; document.body.appendChild(ta); ta.select();
-        document.execCommand('copy'); ta.remove();
-      }
-      const codeEl = card.querySelector('.code');
-      codeEl.classList.add('copied');
-      setTimeout(() => codeEl.classList.remove('copied'), 400);
-      if (navigator.vibrate) navigator.vibrate(15);
-      toast('Copied to clipboard');
+    item.addEventListener('click', e => {
+      if (e.target.closest('.acc-del')) return;
+      setActive(id);
+      document.querySelector('.token-head').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    card.querySelector('.del-btn').addEventListener('click', e => {
+    item.querySelector('.acc-del').addEventListener('click', e => {
       e.stopPropagation();
-      const name = acc.issuer || acc.label || 'this account';
-      if (confirm(`Delete "${name}"?`)) {
+      const name = acc.issuer || acc.label || 'this target';
+      if (confirm(`DELETE "${name}"?\n\nThis cannot be undone.`)) {
         accounts = accounts.filter(x => x.id !== id);
-        save(); render(); tick();
-        toast('Account deleted');
+        if (activeId === id) activeId = accounts[0]?.id || null;
+        save(); renderList(); tick();
+        toast('TARGET REMOVED');
       }
     });
   });
@@ -603,177 +1190,193 @@ function render() {
   tick();
 }
 
-function cardHTML(a, i) {
-  const title = a.issuer || 'Account';
-  const sub = a.label || '';
-  return `
-    <div class="card" data-id="${a.id}" style="animation-delay:${Math.min(i * 30, 300)}ms">
-      <div class="card-head">
-        <div class="issuer">${escapeHTML(title)}</div>
-        ${sub ? `<div class="label">${escapeHTML(sub)}</div>` : ''}
-        <button class="del-btn" aria-label="Delete">✕</button>
-      </div>
-      <div class="code-row">
-        <div class="code">——— ———</div>
-        <div class="ring-wrap">
-          <svg class="ring" viewBox="0 0 44 44">
-            <circle class="ring-bg" cx="22" cy="22" r="18" fill="none" stroke-width="3"/>
-            <circle class="ring-fg" cx="22" cy="22" r="18" fill="none" stroke-width="3"
-              stroke-dasharray="113.097" stroke-dashoffset="0"
-              stroke-linecap="round" transform="rotate(-90 22 22)"/>
-          </svg>
-          <span class="secs">30</span>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-/* ---------- Tick ---------- */
-function tick() {
-  const now = Date.now();
-  const epoch = Math.floor(now / 1000);
-  const C = 113.097;
-
-  document.querySelectorAll('.card[data-id]').forEach(card => {
-    const acc = accounts.find(a => a.id === card.dataset.id);
-    if (!acc) return;
-    const period = acc.period || 30;
-    const remaining = period - (epoch % period);
-
-    const ring = card.querySelector('.ring-fg');
-    if (ring) ring.style.strokeDashoffset = (C * (1 - remaining / period)).toFixed(2);
-    const secs = card.querySelector('.secs');
-    if (secs) secs.textContent = remaining;
-
-    const codeEl = card.querySelector('.code');
-    const step = Math.floor(epoch / period);
-    if (card.dataset.step !== String(step) || codeEl.textContent.includes('———')) {
-      card.dataset.step = String(step);
-      const code = generateCode(acc, now);
-      codeEl.textContent = code ? formatCode(code) : 'ERR ———';
-    }
-
-    card.classList.toggle('warn', remaining <= 5);
+function setActive(id) {
+  activeId = id;
+  save();
+  document.querySelectorAll('.account-item').forEach(i => {
+    i.classList.toggle('active', i.dataset.id === id);
   });
+  $('#codeDisplay').dataset.step = '';
+  tick();
 }
 
-/* ---------- Add account ---------- */
+/* ---------- Add ---------- */
 function addAccount(acc) {
-  // duplicate check
-  const dup = accounts.find(a => a.secret === acc.secret && a.issuer === acc.issuer && a.label === acc.label);
-  if (dup) {
-    toast('Account already exists');
-    return false;
-  }
+  const dup = accounts.find(a =>
+    a.secret === acc.secret && a.issuer === acc.issuer && a.label === acc.label
+  );
+  if (dup) { toast('TARGET EXISTS'); return false; }
   accounts.push(acc);
+  if (!activeId) activeId = acc.id;
   save();
   return true;
 }
 
-/* ---------- Modals ---------- */
+function commitSecret() {
+  if (!pendingSecret) return;
+  const raw = $('#mName').value.trim();
+  if (!raw) { toast('ENTER NAME'); return; }
+
+  let issuer = raw, label = '';
+  const m = raw.match(/^([^:—\-]+)\s*[:—\-]\s*(.+)$/);
+  if (m) { issuer = m[1].trim(); label = m[2].trim(); }
+  else if (raw.includes('@')) { issuer = raw.split('@')[0]; label = raw; }
+
+  if (pendingMeta) {
+    if (pendingMeta.issuer && !label) issuer = pendingMeta.issuer;
+    if (pendingMeta.label && !label) label = pendingMeta.label;
+  }
+
+  const acc = {
+    id: uid(),
+    issuer: issuer || 'ACCOUNT',
+    label: label || '',
+    secret: pendingSecret,
+    digits: 6, period: 30, algorithm: 'SHA1'
+  };
+  if (addAccount(acc)) {
+    pendingSecret = null;
+    pendingMeta = null;
+    $('#mName').value = '';
+    $('#secretInput').value = '';
+    closeModal('#addModal');
+    renderList();
+    toast('TARGET SAVED');
+    if (navigator.vibrate) navigator.vibrate(20);
+  }
+}
+
+/* ---------- Modal ---------- */
 function openModal(sel) {
-  const m = $(sel);
-  m.classList.add('show');
+  $(sel).classList.add('show');
   document.body.style.overflow = 'hidden';
 }
 function closeModal(sel) {
-  const m = $(sel);
-  m.classList.remove('show');
+  $(sel).classList.remove('show');
   document.body.style.overflow = '';
 }
 
-/* ---------- Event wiring ---------- */
+/* ---------- Copy ---------- */
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+  }
+}
+
+/* ---------- Boot ---------- */
 document.addEventListener('DOMContentLoaded', () => {
+  initMatrix();
   load();
+  buildSegments();
+  renderList();
 
-  // Boot
-  setTimeout(() => $('#boot').classList.add('hide'), 150);
+  setTimeout(() => $('#boot').classList.add('hide'), 1400);
 
-  // Render (wait for libs to load)
-  render();
-
-  // tick loop
   if (tickTimer) clearInterval(tickTimer);
   tickTimer = setInterval(tick, 250);
 
-  // search
-  $('#search').addEventListener('input', () => render());
-
-  // FAB
-  $('#fab').addEventListener('click', () => openModal('#addModal'));
-
-  // Cancel add
-  $('#cancelAdd').addEventListener('click', () => {
-    closeModal('#addModal');
-    $('#mName').value = '';
-    $('#mSecret').value = '';
-  });
-
-  // Save manual
-  $('#saveManual').addEventListener('click', () => {
-    const nameRaw = $('#mName').value.trim();
-    const secretRaw = normalizeSecret($('#mSecret').value);
-
-    if (!nameRaw) { toast('Enter an account name'); return; }
-    if (!isValidBase32(secretRaw)) { toast('Invalid Base32 secret'); return; }
-
-    // split "Issuer — label" or "Issuer: label"
-    let issuer = nameRaw, label = '';
-    const m = nameRaw.match(/^([^:—\-]+)\s*[:—\-]\s*(.+)$/);
-    if (m) { issuer = m[1].trim(); label = m[2].trim(); }
-    else if (nameRaw.includes('@')) { issuer = nameRaw.split('@')[0]; label = nameRaw; }
-
-    const acc = {
-      id: uid(),
-      issuer,
-      label,
-      secret: secretRaw,
-      digits: 6,
-      period: 30,
-      algorithm: 'SHA1'
-    };
-    if (addAccount(acc)) {
-      $('#mName').value = '';
-      $('#mSecret').value = '';
-      closeModal('#addModal');
-      render();
-      toast('Account added');
-      if (navigator.vibrate) navigator.vibrate(20);
+  /* Paste */
+  $('#pasteBtn').addEventListener('click', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) { toast('CLIPBOARD EMPTY'); return; }
+      if (text.startsWith('otpauth://')) { handleUri(text); return; }
+      const clean = normalizeSecret(text);
+      if (!isValidBase32(clean)) { toast('INVALID KEY'); return; }
+      $('#secretInput').value = clean;
+      pendingSecret = clean;
+      pendingMeta = null;
+      openModal('#addModal');
+      $('#mName').focus();
+    } catch {
+      toast('PASTE BLOCKED');
+      $('#secretInput').focus();
     }
   });
 
-  // Scan
+  /* Input typing */
+  const inputEl = $('#secretInput');
+  inputEl.addEventListener('input', () => {
+    let v = inputEl.value.toUpperCase().replace(/[^A-Z2-7]/g, '');
+    inputEl.value = v.replace(/(.{4})/g, '$1 ').trim();
+  });
+  inputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const clean = normalizeSecret(inputEl.value);
+      if (!isValidBase32(clean)) { toast('INVALID KEY'); return; }
+      pendingSecret = clean;
+      pendingMeta = null;
+      openModal('#addModal');
+      $('#mName').focus();
+    }
+  });
+
+  /* Scan */
   $('#scanBtn').addEventListener('click', () => {
-    closeModal('#addModal');
     openModal('#scanModal');
     startScanner();
   });
-
   $('#cancelScan').addEventListener('click', () => {
     stopScanner();
     closeModal('#scanModal');
   });
 
-  // Menu
+  /* Save */
+  $('#saveManual').addEventListener('click', commitSecret);
+  $('#cancelAdd').addEventListener('click', () => {
+    closeModal('#addModal');
+    $('#mName').value = '';
+    pendingSecret = null;
+    pendingMeta = null;
+  });
+  $('#mName').addEventListener('keydown', e => {
+    if (e.key === 'Enter') commitSecret();
+  });
+
+  /* Copy */
+  $('#copyBtn').addEventListener('click', async () => {
+    const raw = $('#codeDisplay').dataset.raw;
+    if (!raw) return;
+    await copyText(raw);
+    const el = $('#codeDisplay');
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 500);
+    if (navigator.vibrate) navigator.vibrate(15);
+    toast('CODE COPIED');
+  });
+  $('#codeDisplay').addEventListener('click', () => {
+    if (!$('#copyBtn').disabled) $('#copyBtn').click();
+  });
+
+  /* Menu */
   $('#menuBtn').addEventListener('click', () => openModal('#menuModal'));
   $('#cancelMenu').addEventListener('click', () => closeModal('#menuModal'));
 
-  // Export
+  /* Export */
   $('#exportBtn').addEventListener('click', () => {
-    if (!accounts.length) { toast('No accounts to export'); return; }
-    const data = JSON.stringify({ version: 1, exported: new Date().toISOString(), accounts }, null, 2);
+    if (!accounts.length) { toast('NOTHING TO EXPORT'); return; }
+    const data = JSON.stringify({
+      version: 1,
+      exported: new Date().toISOString(),
+      accounts
+    }, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `authenticator-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `secauth-backup-${new Date().toISOString().slice(0,10)}.json`;
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
-    toast('Backup downloaded');
+    toast('BACKUP DOWNLOADED');
   });
 
-  // Import
+  /* Import */
   $('#importBtn').addEventListener('click', () => $('#importFile').click());
   $('#importFile').addEventListener('change', e => {
     const file = e.target.files[0];
@@ -783,13 +1386,13 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const parsed = JSON.parse(ev.target.result);
         const incoming = Array.isArray(parsed) ? parsed : parsed.accounts;
-        if (!Array.isArray(incoming)) throw new Error('bad format');
+        if (!Array.isArray(incoming)) throw new Error('bad');
         let added = 0;
         incoming.forEach(a => {
-          if (a.secret && isValidBase32(a.secret)) {
+          if (a.secret && isValidBase32(normalizeSecret(a.secret))) {
             const acc = {
               id: uid(),
-              issuer: a.issuer || 'Account',
+              issuer: a.issuer || 'ACCOUNT',
               label: a.label || '',
               secret: normalizeSecret(a.secret),
               digits: a.digits || 6,
@@ -801,28 +1404,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         });
-        save(); render();
+        save(); renderList();
         closeModal('#menuModal');
-        toast(`Imported ${added} account${added===1?'':'s'}`);
-      } catch {
-        toast('Invalid backup file');
-      }
+        toast(`IMPORTED ${added}`);
+      } catch { toast('INVALID BACKUP'); }
     };
     reader.readAsText(file);
     e.target.value = '';
   });
 
-  // Clear all
+  /* Clear */
   $('#clearBtn').addEventListener('click', () => {
-    if (!accounts.length) { toast('Nothing to delete'); return; }
-    if (confirm('Delete ALL accounts? This cannot be undone.')) {
-      accounts = []; save(); render();
-      closeModal('#menuModal');
-      toast('All accounts deleted');
+    if (!accounts.length) { toast('NOTHING TO WIPE'); return; }
+    if (confirm('WIPE ALL TARGETS?\n\nThis cannot be undone.')) {
+      accounts = []; activeId = null; save();
+      renderList(); closeModal('#menuModal');
+      toast('ALL DATA WIPED');
     }
   });
 
-  // Close modal on backdrop tap
+  /* Backdrop */
   document.querySelectorAll('.modal').forEach(m => {
     m.addEventListener('click', e => {
       if (e.target === m) {
@@ -832,7 +1433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // PWA install
+  /* Install */
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferredInstall = e;
@@ -846,79 +1447,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const { outcome } = await deferredInstall.userChoice;
     deferredInstall = null;
     $('#installBanner').classList.remove('show');
-    if (outcome === 'accepted') toast('Installed 🎉');
+    if (outcome === 'accepted') toast('MODULE INSTALLED');
   });
   $('#installClose').addEventListener('click', () => {
     $('#installBanner').classList.remove('show');
     localStorage.setItem('install.dismissed', '1');
   });
 
-  // Register service worker
+  /* SW */
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 });
 
-/* ---------- QR Scanner ---------- */
+/* ---------- QR ---------- */
 function startScanner() {
-  if (!window.Html5Qrcode) {
-    toast('Scanner library not loaded');
-    return;
-  }
+  if (!window.Html5Qrcode) { toast('SCANNER OFFLINE'); return; }
   scanner = new Html5Qrcode('reader', { verbose: false });
   scanner.start(
     { facingMode: 'environment' },
     { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1 },
     onScanSuccess,
     () => {}
-  ).catch(err => {
-    toast('Camera access denied');
+  ).catch(() => {
+    toast('CAMERA DENIED');
     closeModal('#scanModal');
   });
 }
-
 function stopScanner() {
   if (scanner) {
     scanner.stop().then(() => scanner.clear()).catch(() => {});
     scanner = null;
   }
 }
-
-function onScanSuccess(decodedText) {
+function onScanSuccess(text) {
   stopScanner();
   closeModal('#scanModal');
-
-  if (!decodedText.startsWith('otpauth://')) {
-    toast('Not a valid 2FA QR code');
-    return;
-  }
-
-  try {
-    const parsed = OTPAuth.URI.parse(decodedText);
-    if (!(parsed instanceof OTPAuth.TOTP)) {
-      toast('Only TOTP accounts are supported');
-      return;
-    }
-    const acc = {
-      id: uid(),
-      issuer: parsed.issuer || '',
-      label: parsed.label || '',
-      secret: parsed.secret.base32,
-      digits: parsed.digits || 6,
-      period: parsed.period || 30,
-      algorithm: parsed.algorithm || 'SHA1'
-    };
-    if (addAccount(acc)) {
-      render();
-      toast('Account added');
-      if (navigator.vibrate) navigator.vibrate(20);
-    }
-  } catch (e) {
-    toast('Could not parse QR code');
-  }
+  handleUri(text);
 }
 
-/* ---------- Visibility: refresh on focus ---------- */
+function handleUri(text) {
+  if (!text.startsWith('otpauth://')) { toast('INVALID QR'); return; }
+  try {
+    const parsed = OTPAuth.URI.parse(text);
+    if (!(parsed instanceof OTPAuth.TOTP)) { toast('TOTP ONLY'); return; }
+    pendingSecret = parsed.secret.base32;
+    pendingMeta = { issuer: parsed.issuer || '', label: parsed.label || '' };
+    const suggested = [parsed.issuer, parsed.label].filter(Boolean).join(' — ') || 'ACCOUNT';
+    $('#mName').value = suggested;
+    openModal('#addModal');
+    $('#mName').focus();
+  } catch { toast('PARSE ERROR'); }
+}
+
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) tick();
 });
