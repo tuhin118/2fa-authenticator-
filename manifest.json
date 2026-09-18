@@ -1,0 +1,26 @@
+{
+  "name": "Authenticator",
+  "short_name": "Auth",
+  "description": "Premium 2FA authenticator. Works offline.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06120d",
+  "theme_color": "#06120d",
+  "categories": ["utilities", "security"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
